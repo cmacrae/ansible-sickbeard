@@ -1,0 +1,7 @@
+---
+
+- name: restart sickbeard
+  service: name=sickbeard state=restarted
+
+- name: import sickbeard service
+  command: /usr/sbin/svccfg import /opt/local/lib/svc/manifest/sickbeard.xml

@@ -1,0 +1,45 @@
+#!/bin/bash
+
+. /lib/svc/share/smf_include.sh
+
+SICK_HOME={{ sickbeard_user_home }}
+SICK_DIR={{ sickbeard_conf_path }}
+SICK_PID={{ sickbeard_pid_file }}
+SICK_ARGS="{{ sickbeard_service_args }}"
+DAEMON={{ sickbeard_binary_path }}/SickBeard.py
+PATH={{ sickbeard_path_var }}
+
+do_start()
+{
+	# Export the configuration
+	if [ -n "$SICK_DIR" ]; then
+		export SICK_DIR
+	fi
+
+	${DAEMON} ${SICK_ARGS}
+}
+
+do_stop()
+{
+	kill -9 `cat ${SICK_PID}`
+	rm -f ${SICK_PID}
+}
+
+case "$1" in
+	start)
+		do_start
+		;;
+	stop)
+		do_stop
+		;;
+	refresh)
+		do_stop
+		do_start
+		;;
+	*)
+		echo "Usage: ${0} {start|stop|refresh}" >&2
+		exit $SMF_EXIT_ERR_FATAL
+		;;
+esac
+
+exit $SMF_EXIT_OK
