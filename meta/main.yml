@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Calum MacRae
-  description: This role deploys SickBeard, a PVR for newsgroup users
+  description: Deploy SickBeard, a PVR for newsgroup users
   #company: your company (optional)
   # Some suggested licenses:
   # - BSD (default)
