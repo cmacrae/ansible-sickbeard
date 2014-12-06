@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Calum MacRae
-  description: 
+  description: This role deploys [SickBeard](http://sickbeard.com), a PVR for newsgroup users
   #company: your company (optional)
   # Some suggested licenses:
   # - BSD (default)
