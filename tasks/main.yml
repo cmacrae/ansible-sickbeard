@@ -1,18 +1,24 @@
 ---
 
-  - name: Ensure SickBeard service group is present
+  - name: Ensure SickBeard service group exists
     group: name={{ sickbeard_group_name }}
            gid={{ sickbeard_group_gid }}
            state=present
            
-  - name: Ensure SickBeard service user is present
+  - name: Ensure SickBeard service user exists
     user: name={{ sickbeard_user_name }}
           uid={{ sickbeard_user_uid }}
           group={{ sickbeard_group_name }}
+          shell=/usr/bin/bash
           home={{ sickbeard_user_home }}
           createhome=yes
           state=present
 
+  - name: Ensure CouchPotato service user environment is set up
+    shell: cp /etc/skel/{.bash*,.login,.profile} {{ couchpotato_user_home }}/
+    args:
+      creates: "{{ couchpotato_user_home }}/.bashrc"
+          
   - name: Ensure SickBeard dependencies are installed
     pkgin: name={{ item }} state=present
     with_items:
