@@ -47,7 +47,7 @@
           recurse=yes state=directory
 
   - name: Fetch SickBeard from GitHub
-    git: repo=git://github.com/midgetspy/Sick-Beard
+    git: repo=https://github.com/midgetspy/Sick-Beard
          dest={{ sickbeard_binary_path }}
          update=no
 
