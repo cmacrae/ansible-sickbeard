@@ -1,22 +1,17 @@
 ---
-# SickBeard user/group properties
 sickbeard_user_name: sickbeard
 sickbeard_group_name: sickbeard
-sickbeard_user_uid: 1000
-sickbeard_group_gid: 1000
-sickbeard_user_home: /opt/{{ sickbeard_user_name }}
-
-# SickBeard paths
+sickbeard_user_uid: 1005
+sickbeard_group_gid: 1005
+sickbeard_user_home: /var/lib/{{ sickbeard_user_name }}
+sickbeard_clone_uri: 'git://github.com/midgetspy/Sick-Beard'
 sickbeard_conf_path: "{{ sickbeard_user_home }}/.sickbeard"
-# use this as the path in SickBeard as the root for other directories (tv show library, download directories)
-sickbeard_library_path: "{{ sickbeard_user_home}}/data/"
-sickbeard_binary_path: "{{ sickbeard_user_home }}/bin/Sick-Beard"
-
-# SickBeard service properties
+sickbeard_library_path: "{{ sickbeard_user_home}}/data/" # Parent path for TV show library, download directories, etc.
 sickbeard_port: 4040
-sickbeard_pid_file: "{{ sickbeard_conf_path }}/sickbeard.pid"
-sickbeard_path_var: /opt/local/bin:/opt/local/sbin:/usr/bin:/bin
-sickbeard_service_args: >-
-  --config $SICK_DIR/config.ini
-  --daemon --pidfile=$SICK_PID
-  -p {{ sickbeard_port }}
+sickbeard_service_reload_command: systemctl daemon-reload
+sickbeard_service_file:
+  src: sickbeard.service.j2
+  dest: /etc/systemd/system/sickbeard.service
+sickbeard_dependencies:
+  - git-core
+  - python-cheetah

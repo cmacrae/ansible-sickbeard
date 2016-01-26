@@ -4,8 +4,13 @@ This role deploys [SickBeard](http://sickbeard.com), a PVR for newsgroup users.
 
 Requirements
 ------------
-This role has been written with [SmartOS](https://smartos.org) in mind, and is designed to be deployed to a [zone](https://wiki.smartos.org/display/DOC/Zones), for use as a server.
-However, if popular demand shows, I'll happily add in support for other operating systems.
+This role requires Ansible 2.0
+
+Supported Platforms
+-------------------
+- Ubuntu: 15.04
+- Debian: 8
+- EL: 7
 
 Role Variables
 --------------
@@ -14,19 +19,22 @@ The current version includes the following variables:
 
 | Name               | Default Value | Description                  |
 |--------------------|---------------|------------------------------|
-| sickbeard_user_name  | sickbeard | username to run the SickBeard service |
-| sickbeard_group_name | sickbeard | groupname to run the SickBeard service |
-| sickbeard_user_uid | 1000 | UID of the SickBeard service user |
-| sickbeard_group_gid | 1000 | GID of the SickBeard service group |
-| sickbeard_user_home | /opt/{{ sickbeard_user_name }} | home directory for the SickBeard service user |
-| sickbeard_conf_path | {{ sickbeard_user_home }}/.sickbeard | configuration directory for the SickBeard service |
-| sickbeard_library_path | {{ sickbeard_user_home }}/data | root library path, to be used for download directories, tv library etc. |
-| sickbeard_binary_path | {{ sickbeard_user_home }}/bin/Sick-Beard | path where the SickBeard source will reside |
-| sickeard_oirt }} | 4040 | the TCP port that the SickBeard web interface will bind to |
-| sickbeard_pid_file | {{ sickbeard_conf_path }}/sickbeard.pid | pidfile for the SickBeard service to write the pid to |
-| sickbeard_path_var | /opt/local/bin:/opt/local/sbin:/usr/bin:/bin | set $PATH for the SickBeard service script |
-| sickbeard_service_args | --config {{ sickbeard_conf_path }}/config.ini<br> --daemon --pidfile={{ sickbeard_pid_file }}<br> -p {{ sickbeard_port }}
- | arguments the SickBeard service will use when starting |
+| `sickbeard_user_name`  | sickbeard | The user to run the SickBeard service |
+| `sickbeard_group_name` | sickbeard | The primary group for `sickbeard_user_name` to run the SickBeard service |
+| `sickbeard_user_uid` | 1005 | UID of the SickBeard service user |
+| `sickbeard_group_gid` | 1005 | GID of the SickBeard service group |
+| `sickbeard_user_home` | /var/lib/{{ sickbeard_user_name }} | home directory for the SickBeard service user |
+| `sickbeard_conf_path` | {{ sickbeard_user_home }}/.sickbeard | Configuration directory for the SickBeard service |
+| `sickbeard_library_path` | {{ sickbeard_user_home }}/data | Root library path, to be used for download directories, tv library etc. |
+| `sickeard_port` | 4040 | The TCP port that the SickBeard web interface will bind to |
+| `sickbeard_clone_uri` | 'git://github.com/midgetspy/Sick-Beard' | The remote Git repo to clone SickBeard from |
+| `sickbeard_dependenceis` | - git-core | A list of dependency packages for SickBeard |
+|                          | - python-cheetah |                                       |
+| `sickbeard_service_file` | | |
+| `    src`                  | sickbeard.service.j2 | The source template for the SickBeard service manifest |
+| `    dest`                 | /etc/systemd/system/sickbeard.service | The destination to deploy the SickBeard service manifest to |
+| `sickbeard_service_reload_command` | `systemctl daemon-reload` | The command to use when reloading the SickBeard service configuration |
+
 
 Example Playbook
 ----------------

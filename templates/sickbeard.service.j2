@@ -1,0 +1,14 @@
+[Unit]
+Description=CouchPotato Server
+After=network.target
+
+[Service]
+WorkingDirectory={{ sickbeard_user_home }}
+ExecStart={{ sickbeard_user_home }}/src/SickBeard.py  --config {{ sickbeard_conf_path }}/config.ini -p {{ sickbeard_port }} --daemon
+GuessMainPID=no
+Type=forking
+User={{ sickbeard_user_name }}
+Group={{ sickbeard_group_name }}
+
+[Install]
+WantedBy=multi-user.target

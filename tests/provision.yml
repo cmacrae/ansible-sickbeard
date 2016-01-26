@@ -1,0 +1,7 @@
+---
+
+  - name: Apply the cmacrae.sickbeard role to all beard_servers
+    hosts: beard_servers
+
+    roles:
+      - ../../cmacrae.sickbeard

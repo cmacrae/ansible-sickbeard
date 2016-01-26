@@ -1,78 +1,60 @@
 ---
 
   - name: Ensure SickBeard service group exists
-    group: name={{ sickbeard_group_name }}
-           gid={{ sickbeard_group_gid }}
-           state=present
+    group:
+      name: "{{ sickbeard_group_name }}"
+      gid: "{{ sickbeard_group_gid }}"
+      system: true
+      state: present
            
   - name: Ensure SickBeard service user exists
-    user: name={{ sickbeard_user_name }}
-          uid={{ sickbeard_user_uid }}
-          group={{ sickbeard_group_name }}
-          shell=/usr/bin/bash
-          home={{ sickbeard_user_home }}
-          createhome=yes
-          state=present
-
-  - name: Ensure SickBeard service user environment is set up
-    shell: cp /etc/skel/{.bash*,.login,.profile} {{ sickbeard_user_home }}/
-    args:
-      creates: "{{ sickbeard_user_home }}/.bashrc"
+    user:
+      name: "{{ sickbeard_user_name }}"
+      uid: "{{ sickbeard_user_uid }}"
+      group: "{{ sickbeard_group_name }}"
+      home: "{{ sickbeard_user_home }}"
+      system: true
+      state: present
 
   - name: Ensure SickBeard dependencies are installed
-    pkgin: name={{ item }} state=present
-    with_items:
-      - git-base
-      - py27-cheetah
-      - py27-sqlite3
-      - py27-elementtree
-      - py27-cElementTree
-
-  - name: Ensure SickBeard binary directory exists
-    file: dest={{ sickbeard_user_home }}/bin
-          owner={{ sickbeard_user_name }}
-          group={{ sickbeard_group_name }}
-          recurse=yes state=directory
+    package: name={{ sickbeard_dependencies }} state=present
 
   - name: Ensure SickBeard library directory exists
-    file: dest={{ sickbeard_library_path }}
-          owner={{ sickbeard_user_name }}
-          group={{ sickbeard_group_name }}
-          state=directory
+    file:
+      dest: "{{ sickbeard_library_path }}"
+      owner: "{{ sickbeard_user_name }}"
+      group: "{{ sickbeard_group_name }}"
+      state: directory
 
   - name: Ensure SickBeard config directory exists
-    file: dest={{ sickbeard_conf_path }}
-          owner={{ sickbeard_user_name }}
-          group={{ sickbeard_group_name }}
-          recurse=yes state=directory
+    file:
+      dest: "{{ sickbeard_conf_path }}"
+      owner: "{{ sickbeard_user_name }}"
+      group: "{{ sickbeard_group_name }}"
+      recurse: true
+      state: directory
 
-  - name: Fetch SickBeard from GitHub
-    git: repo=https://github.com/midgetspy/Sick-Beard
-         dest={{ sickbeard_binary_path }}
-         update=no
+  - name: Fetch SickBeard source code
+    git:
+      repo: "{{ sickbeard_clone_uri }}"
+      dest: "{{ sickbeard_user_home }}/src"
+      update: false
+      accept_hostkey: true
+    become: true
+    become_user: "{{ sickbeard_user_name }}"
 
-  - name: Ensure SickBeard source is owned by service user
-    file: dest={{ sickbeard_binary_path }}
-          owner={{ sickbeard_user_name }}
-          group={{ sickbeard_group_name }}
-          recurse=yes state=directory
-
-  - name: Deploy SickBeard service script
-    template: dest=/opt/local/lib/svc/method/sickbeard
-              src=sickbeard.smartos_service.j2
-              owner=root group=root mode=755
-    notify: restart sickbeard
-              
   - name: Deploy SickBeard service manifest
-    template: dest=/opt/local/lib/svc/manifest/sickbeard.xml
-              src=sickbeard.smartos_smf_manifest.xml.j2
-              owner=root group=root mode=644
-    notify: import sickbeard service
+    template:
+      src: "{{ sickbeard_service_file.src }}"
+      dest: "{{ sickbeard_service_file.dest }}"
+      owner: root
+      group: root
+      mode: 0600
+    notify:
+      - Reload Sickbeard service config
+      - Restart Sickbeard service
 
-  - name: Initial import of SickBeard service
-    command: /usr/sbin/svccfg import /opt/local/lib/svc/manifest/sickbeard.xml
-    args:
-      creates: "/var/svc/log/application-sickbeard:default.log"
+  - meta: flush_handlers
 
   - name: Ensure SickBeard service is running and enabled on boot
     service: name=sickbeard state=started enabled=yes

@@ -1,0 +1,42 @@
+Vagrant.configure(2) do | config |
+  config.ssh.insert_key = false
+  config.ssh.username = 'vagrant'
+  config.vm.provider :virtualbox do |vb|
+    vb.customize ["modifyvm", :id, "--memory", "2048"]
+  end
+
+  # Debian 8
+  config.vm.define "debian8" do |beard|
+    beard.vm.hostname = "debian8.dev"
+    beard.vm.box = "debian/jessie64"
+    beard.vm.network :private_network, ip: "192.168.60.2"
+    beard.vm.network "forwarded_port", guest: 4040, host: 4141
+  end
+
+  # Ubuntu 15.04
+  config.vm.define "ubuntu15" do |beard|
+    beard.vm.hostname = "ubuntu15.dev"
+    beard.vm.box = "ubuntu/vivid64"
+    beard.vm.network :private_network, ip: "192.168.60.3"
+    beard.vm.network "forwarded_port", guest: 4040, host: 4242
+  end
+
+  # CentOS 7
+  config.vm.define "centos7" do |beard|
+    beard.vm.hostname = "centos7.dev"
+    beard.vm.box = "geerlingguy/centos7"
+    beard.vm.network :private_network, ip: "192.168.60.4"
+    beard.vm.network "forwarded_port", guest: 4040, host: 4343
+  end
+
+  # Ansible
+  config.vm.provision "ansible" do |ansible|
+    ansible.groups = {
+      "beard_servers" => ["debian8", "ubuntu15", "centos7"],
+      "all_groups:children" => ["beard_servers"]
+    }
+
+    ansible.sudo = true
+    ansible.playbook = "provision.yml"
+  end
+end
